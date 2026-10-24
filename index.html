@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="zh-HK" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IELTS 7+ 學術生字溫習系統</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+  <style>
+    .perspective-1000 { perspective: 1200px; }
+    .transform-style-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .rotate-y-180 { transform: rotateY(180deg); }
+    .card-transition { transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+
+  <!-- Top Navigation Header -->
+  <header class="border-b border-slate-800/80 bg-slate-900/75 backdrop-blur-md sticky top-0 z-30">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-extrabold text-white shadow-lg shadow-indigo-500/20 text-lg">
+          7+
+        </div>
+        <div>
+          <h1 class="font-bold text-base sm:text-lg tracking-tight text-white flex items-center gap-2">
+            IELTS Lexicon Pro
+            <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 font-medium">Band 7.0 - 8.5</span>
+          </h1>
+          <p class="text-xs text-slate-400">CEFR B2–C1 學術詞彙與搭配詞記憶系統</p>
+        </div>
+      </div>
+
+      <!-- Accent & Quick Stats -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="flex items-center bg-slate-800/90 p-1 rounded-xl border border-slate-700/70 text-xs">
+          <button id="btn-accent-gb" onclick="setAccent('en-GB')" class="px-2.5 py-1.5 rounded-lg font-medium transition bg-indigo-600 text-white">
+            🇬🇧 英音 (IELTS)
+          </button>
+          <button id="btn-accent-us" onclick="setAccent('en-US')" class="px-2.5 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white">
+            🇺🇸 美音
+          </button>
+        </div>
+        <button onclick="openModal('backup-modal')" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition flex items-center gap-1.5" title="備份或還原學習進度">
+          <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+          <span class="hidden sm:inline">進度備份</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="max-w-5xl mx-auto px-4 flex gap-1 sm:gap-2 overflow-x-auto pt-1">
+      <button onclick="switchTab('review')" id="tab-review" class="tab-btn px-4 py-2.5 text-sm font-medium border-b-2 border-indigo-500 text-indigo-400 whitespace-nowrap flex items-center gap-2">
+        <span>📇 閃卡溫習</span>
+        <span id="due-badge" class="px-1.5 py-0.5 text-xs rounded-full bg-indigo-500/20 text-indigo-300 font-semibold">0</span>
+      </button>
+      <button onclick="switchTab('bank')" id="tab-bank" class="tab-btn px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap flex items-center gap-2">
+        <span>📚 詞彙庫與搜尋</span>
+        <span id="total-badge" class="px-1.5 py-0.5 text-xs rounded-full bg-slate-800 text-slate-400">0</span>
+      </button>
+      <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap flex items-center gap-2">
+        <span>✍️ 實戰同義詞測驗</span>
+      </button>
+      <button onclick="switchTab('ai')" id="tab-ai" class="tab-btn px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap flex items-center gap-2">
+        <span>✨ AI 擴充字庫</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-6 space-y-6">
+
+    <!-- Progress Dashboard Strip -->
+    <section class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+        <span class="text-xs text-slate-400 font-medium">今日待溫習 (Due)</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-due" class="text-2xl sm:text-3xl font-extrabold text-indigo-400">0</span>
+          <span class="text-xs text-slate-500">張卡片</span>
+        </div>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+        <span class="text-xs text-slate-400 font-medium">已熟記 (Mastered)</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-mastered" class="text-2xl sm:text-3xl font-extrabold text-emerald-400">0</span>
+          <span id="stat-mastered-pct" class="text-xs text-emerald-500/80 font-medium">0%</span>
+        </div>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+        <span class="text-xs text-slate-400 font-medium">學習中 (Learning)</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-learning" class="text-2xl sm:text-3xl font-extrabold text-amber-400">0</span>
+          <span class="text-xs text-slate-500">張卡片</span>
+        </div>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+        <span class="text-xs text-slate-400 font-medium">唔識 / 需重點突破</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-forgot" class="text-2xl sm:text-3xl font-extrabold text-rose-400">0</span>
+          <span class="text-xs text-slate-500">張卡片</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 1: FLASHCARD REVIEW -->
+    <section id="view-review" class="space-y-5">
+      <!-- Filter Mode Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-900/60 border border-slate-800/80 px-4 py-3 rounded-2xl">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs text-slate-400 mr-1">溫習模式：</span>
+          <button onclick="setReviewFilter('due')" id="filter-due" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-indigo-600 text-white transition">
+            今日到期優先
+          </button>
+          <button onclick="setReviewFilter('hard')" id="filter-hard" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+            專攻「唔識 / 模糊」
+          </button>
+          <button onclick="setReviewFilter('all')" id="filter-all" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+            全部隨機抽考
+          </button>
+        </div>
+        <div class="text-xs text-slate-400">
+          進度：<span id="card-counter" class="text-slate-200 font-semibold">1 / 1</span>
+        </div>
+      </div>
+
+      <!-- Flashcard Area -->
+      <div id="flashcard-wrapper" class="relative w-full max-w-2xl mx-auto">
+        <div id="flashcard-container" class="perspective-1000 w-full h-[430px] sm:h-[450px] cursor-pointer select-none" onclick="flipCard(event)">
+          <div id="flashcard-inner" class="w-full h-full relative transform-style-3d card-transition">
+            
+            <!-- FRONT OF CARD -->
+            <div class="absolute inset-0 w-full h-full backface-hidden bg-gradient-to-b from-slate-900 to-slate-900/95 border-2 border-slate-800 hover:border-indigo-500/40 rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-2xl">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span id="card-cefr" class="px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-bold">C1</span>
+                  <span id="card-topic" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs font-medium">Environment</span>
+                </div>
+                <span id="card-status-pill" class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-400">未溫習</span>
+              </div>
+
+              <div class="text-center my-auto space-y-4">
+                <p id="card-pos" class="text-xs uppercase tracking-widest text-indigo-400 font-semibold">VERB</p>
+                <h2 id="card-word" class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">mitigate</h2>
+                <div class="flex items-center justify-center gap-3">
+                  <span id="card-phonetic" class="text-slate-400 font-mono text-base sm:text-lg">/ˈmɪt.ɪ.ɡeɪt/</span>
+                  <button onclick="speakCurrentWord(event)" class="p-2.5 rounded-full bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/30 transition shadow-sm" title="播放單字發音">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="text-center">
+                <p class="text-xs text-slate-400 flex items-center justify-center gap-1.5">
+                  <span>👆 點擊卡片或按 <kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-300">Space</kbd> 翻開釋義、搭配詞與例句</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- BACK OF CARD -->
+            <div class="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-slate-900 border-2 border-indigo-500/40 rounded-3xl p-6 sm:p-7 flex flex-col justify-between shadow-2xl overflow-y-auto">
+              <div>
+                <!-- Header row on back -->
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div class="flex items-center gap-2.5">
+                    <h3 id="back-word" class="text-2xl font-bold text-white">mitigate</h3>
+                    <span id="back-phonetic" class="text-sm text-slate-400 font-mono">/ˈmɪt.ɪ.ɡeɪt/</span>
+                    <button onclick="speakCurrentWord(event)" class="p-1.5 rounded-lg bg-slate-800 hover:bg-indigo-600 text-indigo-300 hover:text-white transition" title="朗讀單字">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                    </button>
+                  </div>
+                  <span id="back-synonyms" class="text-xs text-indigo-300 bg-indigo-950/60 border border-indigo-800/50 px-2.5 py-1 rounded-lg">同義: alleviate,减轻</span>
+                </div>
+
+                <!-- Definitions -->
+                <div class="mt-3.5 space-y-1">
+                  <p id="back-def-zh" class="text-lg font-bold text-emerald-400">緩和；減輕；使緩和</p>
+                  <p id="back-def-en" class="text-sm text-slate-300 leading-relaxed">to make something less harmful, serious, or bad</p>
+                </div>
+
+                <!-- Collocations (Crucial for Band 7+) -->
+                <div class="mt-4">
+                  <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">🔥 IELTS 7+ 高分搭配詞 (Collocations)</span>
+                  <div id="back-collocations" class="flex flex-wrap gap-1.5"></div>
+                </div>
+
+                <!-- Academic Example Sentence -->
+                <div class="mt-4 bg-slate-950/80 border border-slate-800/90 rounded-2xl p-3.5">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-semibold text-indigo-400">📝 Writing Task 2 / 學術例句</span>
+                    <button onclick="speakCurrentExample(event)" class="text-xs text-slate-300 hover:text-white flex items-center gap-1 bg-slate-800/90 px-2 py-1 rounded-lg transition">
+                      <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                      朗讀例句
+                    </button>
+                  </div>
+                  <p id="back-example" class="text-sm text-slate-200 italic leading-relaxed"></p>
+                </div>
+              </div>
+
+              <p class="text-[11px] text-slate-500 text-center mt-2">根據你剛才的記憶程度，選擇下方按鈕記錄進度</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Rating Buttons (SRS Control) -->
+        <div class="mt-5 grid grid-cols-3 gap-3">
+          <button onclick="rateCard('forgot')" class="group py-3.5 px-4 rounded-2xl bg-rose-500/10 hover:bg-rose-600 border border-rose-500/30 hover:border-rose-500 text-rose-300 hover:text-white transition flex flex-col items-center justify-center shadow-lg">
+            <span class="font-bold text-sm sm:text-base">❌ 唔識 (1)</span>
+            <span class="text-[11px] text-rose-400/80 group-hover:text-rose-100 mt-0.5">今日內重溫</span>
+          </button>
+          <button onclick="rateCard('hard')" class="group py-3.5 px-4 rounded-2xl bg-amber-500/10 hover:bg-amber-600 border border-amber-500/30 hover:border-amber-500 text-amber-300 hover:text-white transition flex flex-col items-center justify-center shadow-lg">
+            <span class="font-bold text-sm sm:text-base">🤔 模糊 (2)</span>
+            <span class="text-[11px] text-amber-400/80 group-hover:text-amber-100 mt-0.5">1 天後複習</span>
+          </button>
+          <button onclick="rateCard('easy')" class="group py-3.5 px-4 rounded-2xl bg-emerald-500/10 hover:bg-emerald-600 border border-emerald-500/30 hover:border-emerald-500 text-emerald-300 hover:text-white transition flex flex-col items-center justify-center shadow-lg">
+            <span class="font-bold text-sm sm:text-base">✅ 熟記 (3)</span>
+            <span id="next-easy-interval" class="text-[11px] text-emerald-400/80 group-hover:text-emerald-100 mt-0.5">3 天後複習</span>
+          </button>
+        </div>
+
+        <!-- Personal Sentence Note Box -->
+        <div class="mt-4 bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <label for="user-note-input" class="text-xs font-medium text-slate-400">💡 個人造句 / 記憶筆記（自動保存，用於訓練 Writing 輸出）：</label>
+            <span id="note-saved-indicator" class="text-xs text-emerald-400 opacity-0 transition">✓ 已保存</span>
+          </div>
+          <input id="user-note-input" type="text" oninput="saveUserNote(this.value)" placeholder="試下用呢個字造一個 IELTS Writing 句子..." class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2 text-sm text-slate-200 placeholder-slate-600 outline-none transition" />
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: WORD BANK & ADD WORD -->
+    <section id="view-bank" class="hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/80 border border-slate-800 p-4 rounded-2xl">
+        <div class="flex flex-1 items-center gap-2">
+          <div class="relative flex-1">
+            <input id="search-input" type="text" oninput="renderWordBank()" placeholder="搜尋單字、中文解釋或主題..." class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl pl-9 pr-4 py-2 text-sm text-white placeholder-slate-500 outline-none" />
+            <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+          <select id="bank-status-filter" onchange="renderWordBank()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-300 outline-none">
+            <option value="all">所有狀態</option>
+            <option value="forgot">❌ 唔識</option>
+            <option value="learning">🤔 學習中</option>
+            <option value="mastered">✅ 已熟記</option>
+            <option value="new">🆕 未溫習</option>
+          </select>
+        </div>
+        <button onclick="openModal('add-word-modal')" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition whitespace-nowrap">
+          ＋ 手動新增生字
+        </button>
+      </div>
+
+      <!-- Word List Table / Cards -->
+      <div id="word-bank-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+    </section>
+
+    <!-- VIEW 3: ACTIVE PARAPHRASING & COLLOCATION QUIZ -->
+    <section id="view-quiz" class="hidden max-w-2xl mx-auto space-y-5">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400">IELTS Reading & Writing 實戰轉換</span>
+            <h2 class="text-xl font-bold text-white mt-0.5">高頻同義詞與語境填充測驗</h2>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-400 block">連勝紀錄</span>
+            <span id="quiz-streak" class="text-2xl font-extrabold text-amber-400">0 🔥</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-950 border border-slate-800/90 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span id="quiz-prompt-type" class="text-xs px-2.5 py-1 rounded-md bg-indigo-500/15 text-indigo-300 font-medium">同義替換</span>
+            <span id="quiz-cefr" class="text-xs text-slate-400 font-mono">CEFR C1</span>
+          </div>
+          <p id="quiz-question" class="text-base sm:text-lg font-medium text-slate-100 leading-relaxed"></p>
+          <p id="quiz-hint" class="text-xs text-slate-400"></p>
+        </div>
+
+        <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+
+        <div id="quiz-feedback" class="hidden rounded-2xl p-4 text-sm"></div>
+
+        <div class="flex justify-end">
+          <button onclick="generateQuizQuestion()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition">
+            下一題 →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: AI GENERATOR FOR IELTS 7+ -->
+    <section id="view-ai" class="hidden max-w-2xl mx-auto space-y-5">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-5">
+        <div class="space-y-1">
+          <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Powered by Gemini AI</span>
+          <h2 class="text-xl font-bold text-white">AI 智能擴充 IELTS 7+ 專屬主題字庫</h2>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            選擇或輸入你想準備的 IELTS 常見考題範疇（例如：人工智能、城市化、刑事司法、全球化），AI 會即時為你生成配備音標、地道 Collocations 及 Band 7.5+ 學術例句的生字卡並加入字庫。
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button onclick="setAiTopic('Environment & Climate Change')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 transition">🌱 環境與氣候變化</button>
+          <button onclick="setAiTopic('Technology & Artificial Intelligence')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 transition">🤖 科技與人工智能</button>
+          <button onclick="setAiTopic('Education & Curriculum')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 transition">🎓 教育與學術發展</button>
+          <button onclick="setAiTopic('Crime, Law & Punishment')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 transition">⚖️ 犯罪與法律制度</button>
+          <button onclick="setAiTopic('Urbanisation & Housing')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 transition">🏙️ 城市化與房屋</button>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input id="ai-topic-input" type="text" value="Environment & Climate Change" placeholder="輸入 IELTS 主題或你想查詢的多個單字..." class="flex-1 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-2.5 text-sm text-white outline-none" />
+          <button id="btn-ai-generate" onclick="generateWordsWithAI()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-sm font-semibold transition flex items-center justify-center gap-2 shadow-lg">
+            <span>✨ 生成 4 個 C1 核心字</span>
+          </button>
+        </div>
+
+        <div id="ai-status" class="hidden rounded-2xl p-4 bg-slate-950 border border-slate-800 text-sm text-slate-300"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: ADD NEW WORD MANUALLY -->
+  <div id="add-word-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-lg font-bold text-white">手動新增 IELTS 生字卡</h3>
+        <button onclick="closeModal('add-word-modal')" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">英文單字 *</label>
+          <input id="new-word" type="text" placeholder="e.g. ubiquitous" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none" />
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">音標</label>
+          <input id="new-phonetic" type="text" placeholder="e.g. /juːˈbɪk.wɪ.təs/" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none" />
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">詞性 (Part of Speech)</label>
+          <select id="new-pos" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none">
+            <option value="verb">verb (動詞)</option>
+            <option value="noun">noun (名詞)</option>
+            <option value="adjective">adjective (形容詞)</option>
+            <option value="adverb">adverb (副詞)</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">主題分類</label>
+          <input id="new-topic" type="text" placeholder="e.g. Technology" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="text-xs text-slate-400 block mb-1">中文解釋 *</label>
+          <input id="new-zh" type="text" placeholder="e.g. 無處不在的；普遍存在的" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="text-xs text-slate-400 block mb-1">英文定義 (English Definition)</label>
+          <input id="new-en" type="text" placeholder="e.g. seeming to be everywhere" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="text-xs text-slate-400 block mb-1">搭配詞 Collocations (用逗號分隔)</label>
+          <input id="new-collocations" type="text" placeholder="e.g. ubiquitous in modern society, become ubiquitous" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="text-xs text-slate-400 block mb-1">IELTS 學術例句 *</label>
+          <textarea id="new-example" rows="2" placeholder="e.g. Smartphones have become ubiquitous in daily communication." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none"></textarea>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeModal('add-word-modal')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-sm">取消</button>
+        <button onclick="addCustomWord()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold">儲存單字</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EXPORT / IMPORT BACKUP -->
+  <div id="backup-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-lg font-bold text-white">學習紀錄備份與還原 (JSON)</h3>
+        <button onclick="closeModal('backup-modal')" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+      <p class="text-xs text-slate-400 leading-relaxed">
+        你的所有「識 / 唔識」記憶進度、複習時間與個人筆記均保存在瀏覽器本地。你亦可以複製下方 JSON 代碼作跨裝置備份，或貼上備份碼還原。
+      </p>
+      <textarea id="backup-json-area" rows="6" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-300 outline-none"></textarea>
+      <div id="backup-msg" class="text-xs text-emerald-400 hidden"></div>
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+        <button onclick="resetAllProgress()" class="px-3 py-2 rounded-xl bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/50 text-xs font-medium">
+          重設所有進度
+        </button>
+        <div class="flex gap-2">
+          <button onclick="copyBackupJson()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium">
+            複製備份碼
+          </button>
+          <button onclick="importBackupJson()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold">
+            匯入並還原
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // 1. INITIAL CURATED IELTS 7+ VOCABULARY DATA
+    // ==========================================
+    const INITIAL_WORDS = [
+      {
+        id: "c1_001",
+        word: "mitigate",
+        phonetic: "/ˈmɪt.ɪ.ɡeɪt/",
+        pos: "verb",
+        cefr: "C1",
+        topic: "Environment",
+        def_zh: "緩和；減輕；使緩解",
+        def_en: "to make something less harmful, serious, or bad",
+        synonyms: "alleviate, attenuate, lessen",
+        collocations: ["mitigate the impact", "mitigate climate change", "mitigate financial risks"],
+        example: "Governments must implement stringent policies to mitigate the adverse environmental impacts of rapid industrialisation."
+      },
+      {
+        id: "c1_002",
+        word: "exacerbate",
+        phonetic: "/ɪɡˈzæs.ə.beɪt/",
+        pos: "verb",
+        cefr: "C1",
+        topic: "Society",
+        def_zh: "使惡化；使加劇；使雪上加霜",
+        def_en: "to make something that is already bad even worse",
+        synonyms: "aggravate, compound, intensify",
+        collocations: ["exacerbate the problem", "exacerbate social inequality", "exacerbate tensions"],
+        example: "Rising housing costs have exacerbated socioeconomic disparities in major metropolitan areas."
+      },
+      {
+        id: "c1_003",
+        word: "ubiquitous",
+        phonetic: "/juːˈbɪk.wɪ.təs/",
+        pos: "adjective",
+        cefr: "C1",
+        topic: "Technology",
+        def_zh: "無處不在的；普遍存在的",
+        def_en: "seeming to be everywhere or in several places at the same time",
+        synonyms: "omnipresent, pervasive, universal",
+        collocations: ["become ubiquitous", "ubiquitous in modern society", "ubiquitous presence"],
+        example: "Algorithmic recommendation systems have become ubiquitous in shaping consumer behaviour online."
+      },
+      {
+        id: "c1_004",
+        word: "detrimental",
+        phonetic: "/ˌdet.rɪˈmen.təl/",
+        pos: "adjective",
+        cefr: "C1",
+        topic: "Health & Society",
+        def_zh: "有害的；不利的",
+        def_en: "causing harm or damage",
+        synonyms: "deleterious, harmful, adverse",
+        collocations: ["detrimental effect on", "detrimental to mental health", "prove detrimental"],
+        example: "Excessive screen time can have a profoundly detrimental effect on adolescents' cognitive development."
+      },
+      {
+        id: "c1_005",
+        word: "proliferate",
+        phonetic: "/prəˈlɪf.ər.eɪt/",
+        pos: "verb",
+        cefr: "C1",
+        topic: "Technology & Media",
+        def_zh: "激增；迅速繁殖；擴散",
+        def_en: "to increase a lot and suddenly in number",
+        synonyms: "multiply, mushroom, escalate",
+        collocations: ["proliferate rapidly", "misinformation proliferates", "digital platforms proliferate"],
+        example: "Short-form video platforms have proliferated over the past decade, transforming how news is consumed."
+      },
+      {
+        id: "c1_006",
+        word: "indispensable",
+        phonetic: "/ˌɪn.dɪˈspen.sə.bəl/",
+        pos: "adjective",
+        cefr: "C1",
+        topic: "Education & Work",
+        def_zh: "不可或缺的；絕對必要的",
+        def_en: "something or someone that is so good or important that you could not manage without it",
+        synonyms: "essential, crucial, imperative",
+        collocations: ["an indispensable tool", "indispensable role in", "indispensable for success"],
+        example: "Critical thinking is an indispensable skill for university students navigating vast amounts of digital information."
+      },
+      {
+        id: "c1_007",
+        word: "Catalyst",
+        phonetic: "/ˈkæt.əl.ɪst/",
+        pos: "noun",
+        cefr: "C1",
+        topic: "Economy & Innovation",
+        def_zh: "催化劑；促成變革的因素",
+        def_en: "an event or person that causes great change",
+        synonyms: "stimulus, impetus, spark",
+        collocations: ["act as a catalyst for", "catalyst for economic growth", "catalyst for reform"],
+        example: "The global pandemic acted as a powerful catalyst for the widespread adoption of remote working arrangements."
+      },
+      {
+        id: "c1_008",
+        word: "scrutinise",
+        phonetic: "/ˈskruː.tɪ.naɪz/",
+        pos: "verb",
+        cefr: "C1",
+        topic: "Law & Governance",
+        def_zh: "仔細審查；細看；嚴密監督",
+        def_en: "to examine something very carefully in order to discover information",
+        synonyms: "inspect, examine, audit",
+        collocations: ["closely scrutinise", "scrutinise public spending", "scrutinise data"],
+        example: "Independent regulatory bodies must closely scrutinise the data privacy practices of multinational tech corporations."
+      },
+      {
+        id: "c1_009",
+        word: "pragmatic",
+        phonetic: "/præɡˈmæt.ɪk/",
+        pos: "adjective",
+        cefr: "C1",
+        topic: "Policy & Government",
+        def_zh: "務實的；講求實際的",
+        def_en: "solving problems in a sensible way that suits the conditions that really exist now",
+        synonyms: "practical, realistic, sensible",
+        collocations: ["take a pragmatic approach", "pragmatic solution", "pragmatic policy"],
+        example: "Policymakers need to adopt a pragmatic approach to balancing economic growth with environmental sustainability."
+      },
+      {
+        id: "c1_010",
+        word: "discrepancy",
+        phonetic: "/dɪˈskrep.ən.si/",
+        pos: "noun",
+        cefr: "C1",
+        topic: "Academic Research",
+        def_zh: "差異；不一致；出入",
+        def_en: "a difference between two things that should be the same",
+        synonyms: "disparity, divergence, inconsistency",
+        collocations: ["significant discrepancy between", "explain the discrepancy", "wide discrepancy"],
+        example: "There remains a stark discrepancy between urban and rural access to tertiary education."
+      },
+      {
+        id: "c1_011",
+        word: "conducive",
+        phonetic: "/kənˈdʒuː.sɪv/",
+        pos: "adjective",
+        cefr: "C1",
+        topic: "Education & Work",
+        def_zh: "有助於…的；有利於…的",
+        def_en: "providing the right conditions for something good to happen or exist",
+        synonyms: "favorable, beneficial, advantageous",
+        collocations: ["conducive to learning", "create an environment conducive to", "conducive to innovation"],
+        example: "Collaborative classroom layouts are far more conducive to active student engagement than traditional lecture halls."
+      },
+      {
+        id: "c1_012",
+        word: "unprecedented",
+        phonetic: "/ʌnˈpres.ɪ.den.tɪd/",
+        pos: "adjective",
+        cefr: "C1",
+        topic: "Global Issues",
+        def_zh: "史無前例的；空前的",
+        def_en: "never having happened or existed in the past",
+        synonyms: "unparalleled, extraordinary, unmatched",
+        collocations: ["at an unprecedented rate", "unprecedented scale", "face unprecedented challenges"],
+        example: "Global temperatures are rising at an unprecedented rate, demanding immediate multilateral cooperation."
+      },
+      {
+        id: "c1_013",
+        word: "viable",
+        phonetic: "/ˈvaɪ.ə.bəl/",
+        pos: "adjective",
+        cefr: "B2/C1",
+        topic: "Energy & Economy",
+        def_zh: "可行的；切實可行的；能獨立發展的",
+        def_en: "able to work as intended or able to succeed",
+        synonyms: "feasible, workable, sustainable",
+        collocations: ["economically viable", "a viable alternative to", "remain viable"],
+        example: "Solar and wind power have become economically viable alternatives to fossil fuels in many regions."
+      },
+      {
+        id: "c1_014",
+        word: "jeopardise",
+        phonetic: "/ˈdʒep.ə.daɪz/",
+        pos: "verb",
+        cefr: "C1",
+        topic: "Environment & Career",
+        def_zh: "危及；損害；使處於險境",
+        def_en: "to put something such as a plan or system in danger of being harmed or damaged",
+        synonyms: "endanger, imperil, compromise",
+        collocations: ["jeopardise future prospects", "jeopardise biodiversity", "jeopardise economic stability"],
+        example: "Unregulated deforestation continues to jeopardise the survival of countless endemic species."
+      },
+      {
+        id: "c1_015",
+        word: "substantiate",
+        phonetic: "/səbˈstæn.ʃi.eɪt/",
+        pos: "verb",
+        cefr: "C1",
+        topic: "Academic Argument",
+        def_zh: "證實；用證據支持（論點）",
+        def_en: "to show something to be true, or to support a claim with facts",
+        synonyms: "corroborate, validate, verify",
+        collocations: ["substantiate a claim", "empirical evidence to substantiate", "fail to substantiate"],
+        example: "In Academic Writing Task 2, candidates should substantiate their arguments with relevant examples."
+      },
+      {
+        id: "c1_016",
+        word: "repercussion",
+        phonetic: "/ˌriː.pəˈkʌʃ.ən/",
+        pos: "noun",
+        cefr: "C1",
+        topic: "Society & Policy",
+        def_zh: "（尤指不良的）間接影響，後果，反響",
+        def_en: "the effect that an action, event, or decision has on something, often a bad effect",
+        synonyms: "ramification, consequence, fallout",
+        collocations: ["serious repercussions for", "economic repercussions", "long-term repercussions"],
+        example: "An ageing population has profound fiscal repercussions for national healthcare and pension systems."
+      }
+    ];
+
+    // ==========================================
+    // 2. APPLICATION STATE & STORAGE (IndexedDB)
+    // ==========================================
+    let words = [];
+    let reviewQueue = [];
+    let currentCardIndex = 0;
+    let isFlipped = false;
+    let currentAccent = 'en-GB';
+    let reviewFilter = 'due';
+    let quizStreak = 0;
+    let currentQuizCorrectWord = null;
+
+    const DB_NAME = 'IELTSLexiconDB';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'vocabulary';
+
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function loadWordsFromDB() {
+      try {
+        const db = await openDatabase();
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.getAll();
+        return new Promise((resolve) => {
+          req.onsuccess = () => {
+            if (req.result && req.result.length > 0) {
+              resolve(req.result);
+            } else {
+              resolve(null);
+            }
+          };
+          req.onerror = () => resolve(null);
+        });
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function saveAllWordsToDB(wordList) {
+      try {
+        const db = await openDatabase();
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        store.clear();
+        wordList.forEach(item => store.put(item));
+      } catch (e) {
+        console.warn('IndexedDB write fallback');
+      }
+    }
+
+    async function saveSingleWordToDB(wordObj) {
+      try {
+        const db = await openDatabase();
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        store.put(wordObj);
+      } catch (e) {
+        console.warn('IndexedDB single write fallback');
+      }
+    }
+
+    function createDefaultStats() {
+      return {
+        status: 'new', // 'new' | 'forgot' | 'learning' | 'mastered'
+        interval: 0,
+        ease: 2.5,
+        nextReview: Date.now(),
+        lastReviewed: null,
+        note: ''
+      };
+    }
+
+    async function initApp() {
+      const saved = await loadWordsFromDB();
+      if (saved && saved.length > 0) {
+        words = saved;
+      } else {
+        words = INITIAL_WORDS.map(w => ({
+          ...w,
+          stats: createDefaultStats()
+        }));
+        await saveAllWordsToDB(words);
+      }
+      updateDashboardStats();
+      buildReviewQueue();
+      renderCurrentCard();
+      renderWordBank();
+      generateQuizQuestion();
+    }
+
+    // ==========================================
+    // 3. DASHBOARD & REVIEW QUEUE LOGIC (SM-2)
+    // ==========================================
+    function isWordDue(w) {
+      if (!w.stats) return true;
+      return w.stats.nextReview <= Date.now();
+    }
+
+    function updateDashboardStats() {
+      const dueCount = words.filter(w => isWordDue(w)).length;
+      const masteredCount = words.filter(w => w.stats?.status === 'mastered').length;
+      const learningCount = words.filter(w => w.stats?.status === 'learning').length;
+      const forgotCount = words.filter(w => w.stats?.status === 'forgot').length;
+
+      document.getElementById('stat-due').textContent = dueCount;
+      document.getElementById('due-badge').textContent = dueCount;
+      document.getElementById('total-badge').textContent = words.length;
+      document.getElementById('stat-mastered').textContent = masteredCount;
+      document.getElementById('stat-mastered-pct').textContent = words.length
+        ? Math.round((masteredCount / words.length) * 100) + '%'
+        : '0%';
+      document.getElementById('stat-learning').textContent = learningCount;
+      document.getElementById('stat-forgot').textContent = forgotCount;
+    }
+
+    function setReviewFilter(mode) {
+      reviewFilter = mode;
+      ['due', 'hard', 'all'].forEach(m => {
+        const btn = document.getElementById('filter-' + m);
+        if (m === mode) {
+          btn.className = 'px-3 py-1.5 rounded-xl text-xs font-medium bg-indigo-600 text-white transition';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition';
+        }
+      });
+      buildReviewQueue();
+      renderCurrentCard();
+    }
+
+    function buildReviewQueue() {
+      if (reviewFilter === 'due') {
+        reviewQueue = words.filter(w => isWordDue(w));
+        if (reviewQueue.length === 0) {
+          reviewQueue = [...words];
+        }
+      } else if (reviewFilter === 'hard') {
+        reviewQueue = words.filter(w => w.stats?.status === 'forgot' || w.stats?.status === 'learning');
+        if (reviewQueue.length === 0) {
+          reviewQueue = [...words];
+        }
+      } else {
+        reviewQueue = [...words].sort(() => Math.random() - 0.5);
+      }
+      currentCardIndex = 0;
+    }
+
+    function renderCurrentCard() {
+      if (reviewQueue.length === 0) {
+        reviewQueue = [...words];
+      }
+      if (currentCardIndex >= reviewQueue.length) {
+        currentCardIndex = 0;
+      }
+
+      const item = reviewQueue[currentCardIndex];
+      if (!item) return;
+
+      // Reset flip state first
+      isFlipped = false;
+      document.getElementById('flashcard-inner').classList.remove('rotate-y-180');
+
+      document.getElementById('card-counter').textContent = `${currentCardIndex + 1} / ${reviewQueue.length}`;
+      document.getElementById('card-cefr').textContent = item.cefr || 'C1';
+      document.getElementById('card-topic').textContent = item.topic || 'Academic';
+      document.getElementById('card-pos').textContent = (item.pos || 'word').toUpperCase();
+      document.getElementById('card-word').textContent = item.word;
+      document.getElementById('card-phonetic').textContent = item.phonetic || '';
+
+      // Status pill
+      const statusPill = document.getElementById('card-status-pill');
+      const st = item.stats?.status || 'new';
+      if (st === 'mastered') {
+        statusPill.textContent = '✅ 已熟記';
+        statusPill.className = 'px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
+      } else if (st === 'forgot') {
+        statusPill.textContent = '❌ 需重點溫習';
+        statusPill.className = 'px-2.5 py-1 rounded-full text-xs font-medium bg-rose-500/15 text-rose-300 border border-rose-500/30';
+      } else if (st === 'learning') {
+        statusPill.textContent = '🤔 學習中';
+        statusPill.className = 'px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30';
+      } else {
+        statusPill.textContent = '🆕 新單字';
+        statusPill.className = 'px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-400';
+      }
+
+      // Back of card content
+      document.getElementById('back-word').textContent = item.word;
+      document.getElementById('back-phonetic').textContent = item.phonetic || '';
+      document.getElementById('back-synonyms').textContent = item.synonyms ? `同義: ${item.synonyms}` : 'IELTS Core';
+      document.getElementById('back-def-zh').textContent = item.def_zh;
+      document.getElementById('back-def-en').textContent = item.def_en;
+      document.getElementById('back-example').textContent = item.example;
+
+      const collContainer = document.getElementById('back-collocations');
+      collContainer.innerHTML = '';
+      (item.collocations || []).forEach(col => {
+        const span = document.createElement('span');
+        span.className = 'px-2.5 py-1 rounded-lg bg-indigo-500/15 border border-indigo-500/30 text-indigo-200 text-xs font-medium';
+        span.textContent = col;
+        collContainer.appendChild(span);
+      });
+
+      // Next interval preview on Easy button
+      const curInterval = item.stats?.interval || 0;
+      const nextEasyDays = curInterval === 0 ? 3 : Math.round(curInterval * 2.3);
+      document.getElementById('next-easy-interval').textContent = `${nextEasyDays} 天後複習`;
+
+      // Personal note
+      document.getElementById('user-note-input').value = item.stats?.note || '';
+    }
+
+    function flipCard(event) {
+      if (event && event.target.closest('button')) return;
+      isFlipped = !isFlipped;
+      const inner = document.getElementById('flashcard-inner');
+      if (isFlipped) {
+        inner.classList.add('rotate-y-180');
+      } else {
+        inner.classList.remove('rotate-y-180');
+      }
+    }
+
+    async function rateCard(rating) {
+      const item = reviewQueue[currentCardIndex];
+      if (!item) return;
+      if (!item.stats) item.stats = createDefaultStats();
+
+      const DAY_MS = 24 * 60 * 60 * 1000;
+
+      if (rating === 'forgot') {
+        item.stats.status = 'forgot';
+        item.stats.interval = 0;
+        item.stats.ease = Math.max(1.3, (item.stats.ease || 2.5) - 0.2);
+        // Schedule again in 5 minutes
+        item.stats.nextReview = Date.now() + 5 * 60 * 1000;
+      } else if (rating === 'hard') {
+        item.stats.status = 'learning';
+        item.stats.interval = 1;
+        item.stats.nextReview = Date.now() + 1 * DAY_MS;
+      } else if (rating === 'easy') {
+        item.stats.status = 'mastered';
+        const prev = item.stats.interval || 0;
+        item.stats.interval = prev === 0 ? 3 : Math.round(prev * (item.stats.ease || 2.3));
+        item.stats.ease = Math.min(3.0, (item.stats.ease || 2.5) + 0.1);
+        item.stats.nextReview = Date.now() + item.stats.interval * DAY_MS;
+      }
+
+      item.stats.lastReviewed = Date.now();
+      await saveSingleWordToDB(item);
+      updateDashboardStats();
+
+      currentCardIndex++;
+      if (currentCardIndex >= reviewQueue.length) {
+        buildReviewQueue();
+      }
+      renderCurrentCard();
+      renderWordBank();
+    }
+
+    let noteTimeout = null;
+    async function saveUserNote(val) {
+      const item = reviewQueue[currentCardIndex];
+      if (!item) return;
+      if (!item.stats) item.stats = createDefaultStats();
+      item.stats.note = val;
+      await saveSingleWordToDB(item);
+
+      const ind = document.getElementById('note-saved-indicator');
+      ind.classList.remove('opacity-0');
+      clearTimeout(noteTimeout);
+      noteTimeout = setTimeout(() => ind.classList.add('opacity-0'), 1400);
+    }
+
+    // ==========================================
+    // 4. PRONUNCIATION / WEB SPEECH API
+    // ==========================================
+    function setAccent(lang) {
+      currentAccent = lang;
+      const gbBtn = document.getElementById('btn-accent-gb');
+      const usBtn = document.getElementById('btn-accent-us');
+      if (lang === 'en-GB') {
+        gbBtn.className = 'px-2.5 py-1.5 rounded-lg font-medium transition bg-indigo-600 text-white';
+        usBtn.className = 'px-2.5 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white';
+      } else {
+        usBtn.className = 'px-2.5 py-1.5 rounded-lg font-medium transition bg-indigo-600 text-white';
+        gbBtn.className = 'px-2.5 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white';
+      }
+    }
+
+    function speakText(text, rate = 0.9) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = currentAccent;
+      utter.rate = rate;
+      window.speechSynthesis.speak(utter);
+    }
+
+    function speakCurrentWord(e) {
+      if (e) e.stopPropagation();
+      const item = reviewQueue[currentCardIndex];
+      if (item) speakText(item.word, 0.88);
+    }
+
+    function speakCurrentExample(e) {
+      if (e) e.stopPropagation();
+      const item = reviewQueue[currentCardIndex];
+      if (item) speakText(item.example, 0.92);
+    }
+
+    // ==========================================
+    // 5. WORD BANK SEARCH & CUSTOM CREATION
+    // ==========================================
+    function renderWordBank() {
+      const query = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+      const statusFilter = document.getElementById('bank-status-filter')?.value || 'all';
+      const container = document.getElementById('word-bank-list');
+      if (!container) return;
+
+      const filtered = words.filter(w => {
+        const matchesQuery =
+          w.word.toLowerCase().includes(query) ||
+          (w.def_zh || '').toLowerCase().includes(query) ||
+          (w.topic || '').toLowerCase().includes(query) ||
+          (w.synonyms || '').toLowerCase().includes(query);
+        const st = w.stats?.status || 'new';
+        const matchesStatus = statusFilter === 'all' || st === statusFilter;
+        return matchesQuery && matchesStatus;
+      });
+
+      container.innerHTML = filtered.map(w => {
+        const st = w.stats?.status || 'new';
+        let badge = '<span class="text-xs px-2 py-0.5 rounded-md bg-slate-800 text-slate-400">🆕 未溫習</span>';
+        if (st === 'mastered') badge = `<span class="text-xs px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300">✅ 已熟記 (${w.stats.interval}d)</span>`;
+        if (st === 'learning') badge = `<span class="text-xs px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300">🤔 學習中</span>`;
+        if (st === 'forgot') badge = `<span class="text-xs px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-300">❌ 唔識</span>`;
+
+        return `
+          <div class="bg-slate-900/90 border border-slate-800 hover:border-slate-700 rounded-2xl p-4 flex flex-col justify-between gap-2 transition">
+            <div>
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <button onclick="speakText('${w.word.replace(/'/g, "\\'")}')" class="p-1.5 rounded-lg bg-indigo-500/15 hover:bg-indigo-600 text-indigo-300 hover:text-white transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                  </button>
+                  <h4 class="font-bold text-white text-lg">${w.word}</h4>
+                  <span class="text-xs text-slate-400 font-mono">${w.phonetic || ''}</span>
+                </div>
+                ${badge}
+              </div>
+              <p class="text-sm font-semibold text-emerald-400 mt-1.5">${w.def_zh}</p>
+              <p class="text-xs text-slate-400 mt-0.5">${w.def_en || ''}</p>
+              <div class="flex flex-wrap gap-1 mt-2">
+                ${(w.collocations || []).map(c => `<span class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-indigo-300">${c}</span>`).join('')}
+              </div>
+            </div>
+            <p class="text-xs text-slate-300 italic border-t border-slate-800/80 pt-2 mt-1">"${w.example}"</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function addCustomWord() {
+      const word = document.getElementById('new-word').value.trim();
+      const phonetic = document.getElementById('new-phonetic').value.trim() || '/-/';
+      const pos = document.getElementById('new-pos').value;
+      const topic = document.getElementById('new-topic').value.trim() || 'Academic';
+      const def_zh = document.getElementById('new-zh').value.trim();
+      const def_en = document.getElementById('new-en').value.trim();
+      const collRaw = document.getElementById('new-collocations').value.trim();
+      const example = document.getElementById('new-example').value.trim();
+
+      if (!word || !def_zh || !example) return;
+
+      const newObj = {
+        id: 'custom_' + Date.now(),
+        word,
+        phonetic,
+        pos,
+        cefr: 'C1',
+        topic,
+        def_zh,
+        def_en: def_en || def_zh,
+        synonyms: '',
+        collocations: collRaw ? collRaw.split(',').map(s => s.trim()).filter(Boolean) : [word],
+        example,
+        stats: createDefaultStats()
+      };
+
+      words.unshift(newObj);
+      await saveSingleWordToDB(newObj);
+      updateDashboardStats();
+      buildReviewQueue();
+      renderWordBank();
+      closeModal('add-word-modal');
+
+      ['new-word', 'new-phonetic', 'new-topic', 'new-zh', 'new-en', 'new-collocations', 'new-example'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+    }
+
+    // ==========================================
+    // 6. PARAPHRASING & CONTEXT QUIZ
+    // ==========================================
+    function generateQuizQuestion() {
+      if (words.length < 4) return;
+      const feedback = document.getElementById('quiz-feedback');
+      feedback.classList.add('hidden');
+
+      const target = words[Math.floor(Math.random() * words.length)];
+      currentQuizCorrectWord = target;
+
+      // Pick 3 distractors
+      const others = words.filter(w => w.id !== target.id).sort(() => Math.random() - 0.5).slice(0, 3);
+      const options = [target, ...others].sort(() => Math.random() - 0.5);
+
+      // Hide the target word in the example sentence if present
+      const regex = new RegExp(target.word.slice(0, -1) + '\\w*', 'gi');
+      const maskedSentence = target.example.replace(regex, '________');
+
+      document.getElementById('quiz-cefr').textContent = `CEFR ${target.cefr || 'C1'} · ${target.topic || 'Academic'}`;
+      document.getElementById('quiz-question').textContent = maskedSentence;
+      document.getElementById('quiz-hint').textContent = `提示（中文語義）：${target.def_zh} ${target.synonyms ? `｜ 同義詞：${target.synonyms}` : ''}`;
+
+      const optContainer = document.getElementById('quiz-options');
+      optContainer.innerHTML = options.map(opt => `
+        <button onclick="checkQuizAnswer('${opt.id}', this)" class="quiz-opt-btn p-4 rounded-2xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-left transition flex items-center justify-between">
+          <div>
+            <span class="font-bold text-white block text-base">${opt.word}</span>
+            <span class="text-xs text-slate-400 font-mono">${opt.phonetic || ''}</span>
+          </div>
+          <span class="text-xs text-slate-500">${opt.pos || ''}</span>
+        </button>
+      `).join('');
+    }
+
+    function checkQuizAnswer(selectedId, btnEl) {
+      const feedback = document.getElementById('quiz-feedback');
+      const allBtns = document.querySelectorAll('.quiz-opt-btn');
+      allBtns.forEach(b => b.disabled = true);
+
+      if (selectedId === currentQuizCorrectWord.id) {
+        quizStreak++;
+        btnEl.className = 'quiz-opt-btn p-4 rounded-2xl bg-emerald-500/20 border-2 border-emerald-500 text-left transition flex items-center justify-between';
+        feedback.className = 'rounded-2xl p-4 text-sm bg-emerald-950/60 border border-emerald-800 text-emerald-200';
+        feedback.innerHTML = `<strong>✅ 答啱了！</strong> 完整句子：<em>"${currentQuizCorrectWord.example}"</em>`;
+        speakText(currentQuizCorrectWord.word);
+      } else {
+        quizStreak = 0;
+        btnEl.className = 'quiz-opt-btn p-4 rounded-2xl bg-rose-500/20 border-2 border-rose-500 text-left transition flex items-center justify-between';
+        feedback.className = 'rounded-2xl p-4 text-sm bg-rose-950/60 border border-rose-800 text-rose-200';
+        feedback.innerHTML = `<strong>❌ 正確答案係 <span class="underline">${currentQuizCorrectWord.word}</span></strong>（${currentQuizCorrectWord.def_zh}）。<br/>完整例句：<em>"${currentQuizCorrectWord.example}"</em>`;
+      }
+      document.getElementById('quiz-streak').textContent = `${quizStreak} 🔥`;
+      feedback.classList.remove('hidden');
+    }
+
+    // ==========================================
+    // 7. GEMINI AI VOCABULARY EXPANDER
+    // ==========================================
+    function setAiTopic(topic) {
+      document.getElementById('ai-topic-input').value = topic;
+    }
+
+    async function generateWordsWithAI() {
+      const topic = document.getElementById('ai-topic-input').value.trim();
+      if (!topic) return;
+
+      const statusBox = document.getElementById('ai-status');
+      const btn = document.getElementById('btn-ai-generate');
+      statusBox.classList.remove('hidden');
+      statusBox.textContent = `⏳ 正在為主題「${topic}」生成 4 個 IELTS Band 7.5+ (CEFR C1) 學術單字、搭配詞與例句...`;
+      btn.disabled = true;
+
+      const apiKey = "";
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+      const existingWordsList = words.map(w => w.word.toLowerCase()).join(', ');
+      const prompt = `Generate 4 high-utility IELTS Academic Band 7.5+ (CEFR C1) vocabulary words related to "${topic}". Avoid these already existing words: ${existingWordsList}. Provide Traditional Chinese (Hong Kong style) definitions, phonetic IPA, 3 high-scoring IELTS collocations, synonyms, and an academic Writing Task 2 style sentence.`;
+
+      const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                word: { type: "STRING" },
+                phonetic: { type: "STRING" },
+                pos: { type: "STRING" },
+                cefr: { type: "STRING" },
+                topic: { type: "STRING" },
+                def_zh: { type: "STRING" },
+                def_en: { type: "STRING" },
+                synonyms: { type: "STRING" },
+                collocations: { type: "ARRAY", items: { type: "STRING" } },
+                example: { type: "STRING" }
+              },
+              required: ["word", "phonetic", "pos", "def_zh", "def_en", "collocations", "example"]
+            }
+          }
+        }
+      };
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        const rawJson = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!rawJson) throw new Error('未能解析 AI 回應');
+
+        const generated = JSON.parse(rawJson);
+        let addedCount = 0;
+
+        for (const g of generated) {
+          if (!words.some(w => w.word.toLowerCase() === g.word.toLowerCase())) {
+            const newCard = {
+              id: 'ai_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+              ...g,
+              cefr: g.cefr || 'C1',
+              topic: g.topic || topic,
+              stats: createDefaultStats()
+            };
+            words.unshift(newCard);
+            await saveSingleWordToDB(newCard);
+            addedCount++;
+          }
+        }
+
+        updateDashboardStats();
+        buildReviewQueue();
+        renderCurrentCard();
+        renderWordBank();
+
+        statusBox.innerHTML = `✅ 成功為你生成並加入 <strong>${addedCount}</strong> 個「${topic}」主題 C1 單字！你現在可以返回「閃卡溫習」或「詞彙庫」查看。`;
+      } catch (err) {
+        statusBox.innerHTML = `⚠️ AI 即時連線忙碌中，你仍可使用「詞彙庫」內的「手動新增生字」功能自由擴充字庫。`;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // ==========================================
+    // 8. NAVIGATION, MODALS & BACKUP
+    // ==========================================
+    function switchTab(tabName) {
+      ['review', 'bank', 'quiz', 'ai'].forEach(t => {
+        const view = document.getElementById('view-' + t);
+        const tabBtn = document.getElementById('tab-' + t);
+        if (t === tabName) {
+          view.classList.remove('hidden');
+          tabBtn.className = 'tab-btn px-4 py-2.5 text-sm font-medium border-b-2 border-indigo-500 text-indigo-400 whitespace-nowrap flex items-center gap-2';
+        } else {
+          view.classList.add('hidden');
+          tabBtn.className = 'tab-btn px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap flex items-center gap-2';
+        }
+      });
+    }
+
+    function openModal(id) {
+      const m = document.getElementById(id);
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+      if (id === 'backup-modal') {
+        document.getElementById('backup-json-area').value = JSON.stringify(words);
+        document.getElementById('backup-msg').classList.add('hidden');
+      }
+    }
+
+    function closeModal(id) {
+      const m = document.getElementById(id);
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function copyBackupJson() {
+      const area = document.getElementById('backup-json-area');
+      area.select();
+      document.execCommand('copy');
+      const msg = document.getElementById('backup-msg');
+      msg.textContent = '✓ 已複製備份 JSON 到剪貼簿！';
+      msg.classList.remove('hidden');
+    }
+
+    async function importBackupJson() {
+      const raw = document.getElementById('backup-json-area').value.trim();
+      const msg = document.getElementById('backup-msg');
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          words = parsed;
+          await saveAllWordsToDB(words);
+          updateDashboardStats();
+          buildReviewQueue();
+          renderCurrentCard();
+          renderWordBank();
+          msg.textContent = `✓ 成功還原 ${words.length} 個單字及學習紀錄！`;
+          msg.classList.remove('hidden');
+        }
+      } catch (e) {
+        msg.textContent = '⚠️ JSON 格式不正確，請檢查後重試。';
+        msg.classList.remove('hidden');
+      }
+    }
+
+    async function resetAllProgress() {
+      words = INITIAL_WORDS.map(w => ({
+        ...w,
+        stats: createDefaultStats()
+      }));
+      await saveAllWordsToDB(words);
+      updateDashboardStats();
+      buildReviewQueue();
+      renderCurrentCard();
+      renderWordBank();
+      closeModal('backup-modal');
+    }
+
+    // Keyboard shortcuts for fast desktop reviewing
+    window.addEventListener('keydown', (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+      const reviewVisible = !document.getElementById('view-review').classList.contains('hidden');
+      if (!reviewVisible) return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        flipCard();
+      } else if (e.key === '1') {
+        rateCard('forgot');
+      } else if (e.key === '2') {
+        rateCard('hard');
+      } else if (e.key === '3') {
+        rateCard('easy');
+      } else if (e.key.toLowerCase() === 'r') {
+        speakCurrentWord();
+      }
+    });
+
+    window.onload = initApp;
+  </script>
+</body>
+</html>
